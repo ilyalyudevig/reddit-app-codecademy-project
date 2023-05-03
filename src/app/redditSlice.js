@@ -1,10 +1,12 @@
-import { createSlice, createSelector } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
+import { getSubredditPosts } from "../api/reddit";
 
 const initialState = {
     posts: [],
     error: false,
     isLoading: false,
     searchTerm: '',
+    selectedSubreddit: '/r/popular/',
 };
 
 const redditSlice = createSlice({
@@ -35,6 +37,8 @@ const redditSlice = createSlice({
 });
 
 export const selectSearchTerm = (state) => state.reddit.searchTerm;
+export const selectPosts = (state) => state.reddit.posts;
+export const selectSubreddit = (state) => state.reddit.selectedSubreddit;
 
 export const { 
     etPosts, 
@@ -45,3 +49,13 @@ export const {
 } = redditSlice.actions;
 
 export default redditSlice.reducer;
+
+export const fetchPosts = (subreddit) => async (dispatch) => {
+    try {
+        dispatch(startGetPosts());
+        const posts = await getSubredditPosts(subreddit);
+        dispatch(getPostsSuccess(posts));
+    } catch (error) {
+        dispatch(getPostsFailed());
+    };
+};
